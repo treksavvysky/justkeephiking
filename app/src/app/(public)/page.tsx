@@ -1,9 +1,10 @@
 import Countdown from '@/components/countdown/Countdown';
 import SubscribeButton from '@/components/ui/SubscribeButton';
 import type { SiteConfig } from '@/types';
+import { getSiteConfig } from '@/lib/actions';
 
-// This will be replaced with Supabase data fetch later
-const defaultConfig: SiteConfig = {
+// Fallback config if database is not yet set up
+const fallbackConfig: SiteConfig = {
   mode: 'permit',
   permitReleaseUTC: '2026-01-13T18:30:00Z',
   myPermitSlotUTC: '2026-01-13T20:48:07Z',
@@ -22,7 +23,9 @@ const defaultConfig: SiteConfig = {
   },
 };
 
-export default function Home() {
+export default async function Home() {
+  // Fetch config from Supabase, fall back to hardcoded if not available
+  const config = (await getSiteConfig()) || fallbackConfig;
   const year = new Date().getFullYear();
 
   return (
@@ -93,7 +96,7 @@ export default function Home() {
           >
             <div className="border border-[var(--border)] rounded-[14px] p-3 bg-[rgba(255,255,255,0.02)]">
               <b className="block text-base font-[tabular-nums]">
-                {defaultConfig.stats.milesDone.toLocaleString()}
+                {config.stats.milesDone.toLocaleString()}
               </b>
               <small className="text-[var(--muted)] text-[11px]">
                 Miles completed
@@ -101,7 +104,7 @@ export default function Home() {
             </div>
             <div className="border border-[var(--border)] rounded-[14px] p-3 bg-[rgba(255,255,255,0.02)]">
               <b className="block text-base font-[tabular-nums]">
-                {defaultConfig.stats.sectionNow}
+                {config.stats.sectionNow}
               </b>
               <small className="text-[var(--muted)] text-[11px]">
                 Current section
@@ -109,7 +112,7 @@ export default function Home() {
             </div>
             <div className="border border-[var(--border)] rounded-[14px] p-3 bg-[rgba(255,255,255,0.02)]">
               <b className="block text-base font-[tabular-nums]">
-                {defaultConfig.stats.lastCheckin}
+                {config.stats.lastCheckin}
               </b>
               <small className="text-[var(--muted)] text-[11px]">
                 Last check-in
@@ -117,7 +120,7 @@ export default function Home() {
             </div>
             <div className="border border-[var(--border)] rounded-[14px] p-3 bg-[rgba(255,255,255,0.02)]">
               <b className="block text-base font-[tabular-nums]">
-                {defaultConfig.stats.nextTown}
+                {config.stats.nextTown}
               </b>
               <small className="text-[var(--muted)] text-[11px]">
                 Next town/resupply
@@ -126,7 +129,7 @@ export default function Home() {
           </div>
         </div>
 
-        <Countdown config={defaultConfig} />
+        <Countdown config={config} />
       </section>
 
       <section id="status" className="grid md:grid-cols-2 gap-3.5 mt-4">
@@ -135,21 +138,21 @@ export default function Home() {
             <h2 className="m-0 mb-2 text-base">Right now</h2>
             <span className="inline-flex items-center gap-2 text-xs py-1.5 px-2.5 rounded-full bg-[var(--good)] border border-[rgba(255,123,95,0.40)] text-[var(--text)]">
               <span className="w-2 h-2 rounded-full bg-[var(--accent)]"></span>
-              <span>{defaultConfig.liveStatus.state}</span>
+              <span>{config.liveStatus.state}</span>
             </span>
           </div>
           <div className="h-px bg-[var(--border)] my-4"></div>
           <p className="m-0 text-[var(--muted)] leading-relaxed text-sm">
             <b className="text-[var(--text)]">Area:</b>{' '}
-            {defaultConfig.liveStatus.area}
+            {config.liveStatus.area}
           </p>
           <p className="m-0 mt-2 text-[var(--muted)] leading-relaxed text-sm">
             <b className="text-[var(--text)]">Latest:</b>{' '}
-            {defaultConfig.liveStatus.blurb}
+            {config.liveStatus.blurb}
           </p>
           <p className="m-0 mt-2 text-[var(--muted)] leading-relaxed text-sm">
             <b className="text-[var(--text)]">Next update:</b>{' '}
-            {defaultConfig.liveStatus.next}
+            {config.liveStatus.next}
           </p>
           <div className="flex gap-2.5 flex-wrap mt-3.5">
             <a href="#log" className="btn">

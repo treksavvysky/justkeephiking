@@ -2,18 +2,46 @@
 
 ## Quick Start (Local Development)
 
-1. **Install dependencies**:
+1. **Set up environment variables**:
 ```bash
 cd app
+cp .env.example .env.local
+# Edit .env.local with your Supabase credentials
+```
+
+2. **Install dependencies**:
+```bash
 npm install
 ```
 
-2. **Run development server**:
+3. **Run development server**:
 ```bash
 npm run dev
 ```
 
 Visit `http://localhost:3000`
+
+## Set Up Supabase Database
+
+Before deploying, you need to set up your Supabase database:
+
+### 1. Execute Database Migration
+
+1. Open your Supabase dashboard at https://supabase.com/dashboard
+2. Navigate to **SQL Editor** in the left sidebar
+3. Click **New Query**
+4. Copy the entire contents of `supabase/migrations/001_initial_schema.sql`
+5. Paste into the SQL Editor and click **Run**
+
+This creates all tables, RLS policies, and default data.
+
+### 2. Verify Migration
+
+1. Go to **Table Editor** in Supabase dashboard
+2. Confirm you see all tables (profiles, site_config, trail_updates, etc.)
+3. Check **site_config** table has one row with your permit countdown data
+
+See `supabase/README.md` for detailed instructions.
 
 ## Deploy to Dokploy (Production)
 
@@ -25,7 +53,23 @@ SSH into your VPS and navigate to your deployment directory:
 cd /path/to/justkeephiking
 ```
 
-### 2. Build and Deploy
+### 2. Configure Environment Variables
+
+Create `.env` file in the `app` directory:
+
+```bash
+cd app
+nano .env
+```
+
+Add your Supabase credentials (same as `.env.local`):
+```
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+```
+
+### 3. Build and Deploy
 
 ```bash
 cd app
@@ -119,9 +163,35 @@ docker-compose logs -f app
 
 Visit `https://justkeephiking.com` - you should see the landing page with countdown.
 
+## Testing API Endpoints
+
+Once deployed, test your API endpoints:
+
+```bash
+# Get current site config
+curl https://justkeephiking.com/api/config
+
+# Get trail updates
+curl https://justkeephiking.com/api/trail-updates
+
+# Create a trail update (requires admin auth - TODO)
+curl -X POST https://justkeephiking.com/api/trail-updates \
+  -H "Content-Type: application/json" \
+  -d '{
+    "locationName": "Campo",
+    "currentMile": 0,
+    "note": "Day 0: Starting tomorrow!",
+    "visibility": "public"
+  }'
+```
+
 ## Next Steps After Deployment
 
-1. Set up Supabase (follow instructions in main README.md)
-2. Configure email notifications
-3. Test API endpoints
-4. Add admin authentication
+1. ✅ Supabase database is set up
+2. ✅ Landing page fetches data from Supabase
+3. ✅ API endpoints are ready
+4. 🔲 Build admin dashboard at app.justkeephiking.com
+5. 🔲 Add authentication (Supabase Auth)
+6. 🔲 Configure email notifications
+7. 🔲 Add photo upload functionality
+8. 🔲 Implement GPS tracking with privacy controls
