@@ -1,47 +1,55 @@
 // =========================
-// QUICK CONFIG (edit these)
+// LOAD CONFIG FROM JSON
 // =========================
+let config = null;
 
-// Permit release: Jan 13, 2026 @ 10:30 AM PT (PST, UTC-8) => 18:30Z
-const permitReleaseUTC = "2026-01-13T18:30:00Z";
-
-// My permit slot: Jan 13, 2026 @ 12:48:07 PM PT => 20:48:07Z
-const myPermitSlotUTC = "2026-01-13T20:48:07Z";
-
-// After you finalize, set your start date here (local date okay) and flip mode to "start"
-// Example: "2026-04-17T07:00:00-07:00" (Campo morning PT)
-const startDateISO = ""; // <-- fill later
-const mode = "permit";   // "permit" or "start"
-
-// Quick stats (manual MVP)
-const stats = {
-  milesDone: 0,
-  sectionNow: "Permitting",
-  lastCheckin: "Today",
-  nextTown: "Campo (soon)"
-};
-
-// Live status (manual MVP)
-const liveStatus = {
-  state: "Planning / Permit Day",
-  area: "Off-trail (ops planning)",
-  blurb: "Finalizing my NOBO start date today.",
-  next: "After permit is confirmed."
-};
+async function loadConfig() {
+  try {
+    const response = await fetch('data/site.json');
+    config = await response.json();
+    renderStaticData();
+    startCountdown();
+  } catch (error) {
+    console.error('Failed to load config:', error);
+    // Fallback to hardcoded values if fetch fails
+    config = {
+      mode: "permit",
+      permitReleaseUTC: "2026-01-13T18:30:00Z",
+      myPermitSlotUTC: "2026-01-13T20:48:07Z",
+      startDateISO: "",
+      stats: {
+        milesDone: 0,
+        sectionNow: "Permitting",
+        lastCheckin: "Today",
+        nextTown: "Campo (soon)"
+      },
+      liveStatus: {
+        state: "Planning / Permit Day",
+        area: "Off-trail (ops planning)",
+        blurb: "Finalizing my NOBO start date today.",
+        next: "After permit is confirmed."
+      }
+    };
+    renderStaticData();
+    startCountdown();
+  }
+}
 
 // =========================
 // RENDER STATIC DATA
 // =========================
-document.getElementById("year").textContent = new Date().getFullYear();
-document.getElementById("milesDone").textContent = stats.milesDone.toLocaleString();
-document.getElementById("sectionNow").textContent = stats.sectionNow;
-document.getElementById("lastCheckin").textContent = stats.lastCheckin;
-document.getElementById("nextTown").textContent = stats.nextTown;
+function renderStaticData() {
+  document.getElementById("year").textContent = new Date().getFullYear();
+  document.getElementById("milesDone").textContent = config.stats.milesDone.toLocaleString();
+  document.getElementById("sectionNow").textContent = config.stats.sectionNow;
+  document.getElementById("lastCheckin").textContent = config.stats.lastCheckin;
+  document.getElementById("nextTown").textContent = config.stats.nextTown;
 
-document.getElementById("statusState").textContent = liveStatus.state;
-document.getElementById("statusArea").textContent = liveStatus.area;
-document.getElementById("statusBlurb").textContent = liveStatus.blurb;
-document.getElementById("statusNext").textContent = liveStatus.next;
+  document.getElementById("statusState").textContent = config.liveStatus.state;
+  document.getElementById("statusArea").textContent = config.liveStatus.area;
+  document.getElementById("statusBlurb").textContent = config.liveStatus.blurb;
+  document.getElementById("statusNext").textContent = config.liveStatus.next;
+}
 
 // =========================
 // COUNTDOWN ENGINE
@@ -49,15 +57,17 @@ document.getElementById("statusNext").textContent = liveStatus.next;
 function pad2(n){ return String(n).padStart(2, "0"); }
 
 function tick(){
+  if (!config) return;
+
   const now = new Date();
-  const releaseTime = new Date(permitReleaseUTC);
-  const mySlotTime = new Date(myPermitSlotUTC);
-  const startTime = startDateISO ? new Date(startDateISO) : null;
+  const releaseTime = new Date(config.permitReleaseUTC);
+  const mySlotTime = new Date(config.myPermitSlotUTC);
+  const startTime = config.startDateISO ? new Date(config.startDateISO) : null;
 
   let target, label, title, meta, note;
 
   // Determine which countdown to show
-  if (mode === "start" && startTime) {
+  if (config.mode === "start" && startTime) {
     // Final mode: counting down to trail start
     target = startTime;
     label = "Campo Start";
@@ -110,5 +120,10 @@ function tick(){
   document.getElementById("dSecs").textContent = pad2(secs);
 }
 
-tick();
-setInterval(tick, 250);
+function startCountdown() {
+  tick();
+  setInterval(tick, 250);
+}
+
+// Initialize on page load
+loadConfig();

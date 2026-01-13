@@ -1,0 +1,18 @@
+{
+  "mode": "permit",
+  "permitReleaseUTC": "2026-01-13T18:30:00Z",
+  "myPermitSlotUTC": "2026-01-13T20:48:07Z",
+  "startDateISO": "",
+  "stats": {
+    "milesDone": 0,
+    "sectionNow": "Permitting",
+    "lastCheckin": "Today",
+    "nextTown": "Campo (soon)"
+  },
+  "liveStatus": {
+    "state": "Planning / Permit Day",
+    "area": "Off-trail (ops planning)",
+    "blurb": "Finalizing my NOBO start date today.",
+    "next": "After permit is confirmed."
+  }
+}
