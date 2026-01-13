@@ -1,0 +1,97 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #2a2038;
+  --card: #3a3048;
+  --text: #f5e6d3;
+  --muted: #c9b5a3;
+  --border: rgba(255, 183, 147, 0.18);
+  --accent: #ff7b5f;
+  --good: rgba(255, 123, 95, 0.22);
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  --radius: 16px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
+    Helvetica, Arial, 'Apple Color Emoji', 'Segoe UI Emoji';
+  background: radial-gradient(
+      1200px 700px at 20% 0%,
+      rgba(255, 123, 95, 0.2),
+      transparent 60%
+    ),
+    radial-gradient(
+      900px 600px at 90% 10%,
+      rgba(255, 151, 133, 0.15),
+      transparent 55%
+    ),
+    var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+@layer components {
+  .container {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 22px 18px 60px;
+  }
+
+  .card {
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.03),
+      rgba(255, 255, 255, 0.015)
+    );
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 18px;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    font-weight: 600;
+    font-size: 14px;
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--text);
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .btn:hover {
+    background: rgba(255, 255, 255, 0.07);
+    text-decoration: none;
+  }
+
+  .btn-primary {
+    background: rgba(255, 123, 95, 0.2);
+    border-color: rgba(255, 123, 95, 0.4);
+  }
+
+  .btn-primary:hover {
+    background: rgba(255, 123, 95, 0.3);
+  }
+}
