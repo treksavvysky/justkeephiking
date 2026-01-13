@@ -1,4 +1,5 @@
 import Countdown from '@/components/countdown/Countdown';
+import SubscribeButton from '@/components/ui/SubscribeButton';
 import type { SiteConfig } from '@/types';
 
 // This will be replaced with Supabase data fetch later
@@ -168,14 +169,7 @@ export default function Home() {
             today, use a Google Form / Mailchimp embed later.
           </p>
           <div className="flex gap-2.5 flex-wrap mt-3.5">
-            <button
-              className="btn btn-primary"
-              onClick={() =>
-                alert('MVP placeholder — add a signup form when ready.')
-              }
-            >
-              Subscribe
-            </button>
+            <SubscribeButton />
             <a href="#support" className="btn">
               Support
             </a>
