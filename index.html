@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Just Keep Hiking — PCT Yo-Yo</title>
+  <meta name="description" content="Just Keep Hiking — PCT Yo-Yo mission control: status, countdowns, and trail logs." />
+  <style>
+    :root{
+      --bg: #0b0f14;
+      --card: #0f1621;
+      --text: #e7eef7;
+      --muted: #9fb1c7;
+      --border: rgba(255,255,255,.10);
+      --accent: #63b3ff;
+      --good: rgba(99,179,255,.18);
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius: 16px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background: radial-gradient(1200px 700px at 20% 0%, rgba(99,179,255,.12), transparent 60%),
+                  radial-gradient(900px 600px at 90% 10%, rgba(99,179,255,.08), transparent 55%),
+                  var(--bg);
+      color:var(--text);
+    }
+    a{color:var(--accent); text-decoration:none}
+    a:hover{text-decoration:underline}
+    .container{max-width:1120px; margin:0 auto; padding:22px 18px 60px}
+    header{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:16px; padding:10px 0 22px;
+      position:sticky; top:0; backdrop-filter: blur(10px);
+      background: linear-gradient(to bottom, rgba(11,15,20,.85), rgba(11,15,20,.55));
+      z-index:10;
+    }
+    .brand{display:flex; flex-direction:column; line-height:1.1}
+    .brand b{font-size:16px; letter-spacing:.2px}
+    .brand small{color:var(--muted); font-size:12px}
+    nav{display:flex; gap:14px; flex-wrap:wrap; justify-content:flex-end}
+    nav a{color:var(--text); opacity:.9; font-size:13px; padding:8px 10px; border-radius:12px}
+    nav a:hover{background:rgba(255,255,255,.06); text-decoration:none}
+    .hero{
+      display:grid; grid-template-columns: 1.2fr .8fr;
+      gap:18px; align-items:stretch; margin-top:10px;
+    }
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.015));
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow: var(--shadow);
+      padding:18px;
+    }
+    h1{margin:0 0 10px; font-size:36px; letter-spacing:-.5px}
+    .sub{color:var(--muted); font-size:15px; line-height:1.45; margin:0 0 16px}
+    .btnrow{display:flex; gap:10px; flex-wrap:wrap}
+    .btn{
+      display:inline-flex; align-items:center; justify-content:center;
+      gap:8px; padding:12px 14px;
+      border-radius:14px; border:1px solid var(--border);
+      font-weight:600; font-size:14px;
+      background:rgba(255,255,255,.03);
+      color:var(--text);
+    }
+    .btn:hover{background:rgba(255,255,255,.07); text-decoration:none}
+    .btn.primary{
+      background: rgba(99,179,255,.18);
+      border-color: rgba(99,179,255,.35);
+      color: var(--text);
+    }
+    .btn.primary:hover{background: rgba(99,179,255,.26)}
+    .countdown{
+      display:flex; flex-direction:column; gap:10px;
+    }
+    .cd-top{display:flex; align-items:center; justify-content:space-between; gap:12px}
+    .pill{
+      font-size:12px; padding:6px 10px; border-radius:999px;
+      border:1px solid var(--border); color:var(--muted);
+      background: rgba(255,255,255,.02);
+      white-space:nowrap;
+    }
+    .digits{
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum" 1;
+      display:grid; grid-template-columns: repeat(4, 1fr);
+      gap:10px;
+    }
+    .digit{
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:12px 10px;
+      background: rgba(255,255,255,.02);
+      text-align:center;
+    }
+    .digit b{display:block; font-size:20px}
+    .digit small{display:block; color:var(--muted); font-size:11px; margin-top:3px; letter-spacing:.2px}
+    .meta{color:var(--muted); font-size:12px; line-height:1.35}
+    .stats{
+      margin-top:16px;
+      display:grid; grid-template-columns: repeat(4, 1fr);
+      gap:10px;
+    }
+    .stat{
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:12px 12px;
+      background: rgba(255,255,255,.02);
+    }
+    .stat b{display:block; font-size:16px; font-variant-numeric: tabular-nums}
+    .stat small{color:var(--muted); font-size:11px}
+    .grid2{
+      margin-top:16px;
+      display:grid; grid-template-columns: 1fr 1fr; gap:14px;
+    }
+    .status-pill{
+      display:inline-flex; align-items:center; gap:8px;
+      font-size:12px; padding:6px 10px; border-radius:999px;
+      background: var(--good); border:1px solid rgba(99,179,255,.35);
+      color: var(--text);
+    }
+    .dot{width:8px; height:8px; border-radius:999px; background: var(--accent)}
+    h2{margin:0 0 8px; font-size:16px}
+    p{margin:0; color:var(--muted); line-height:1.45; font-size:14px}
+    .split{
+      display:flex; align-items:flex-start; justify-content:space-between; gap:10px;
+      flex-wrap:wrap;
+    }
+    .foot{
+      margin-top:22px; color:var(--muted); font-size:12px;
+      opacity:.95;
+    }
+    .hr{height:1px; background:var(--border); margin:16px 0}
+    .tiny{font-size:12px; color:var(--muted)}
+    @media (max-width: 900px){
+      .hero{grid-template-columns:1fr}
+      h1{font-size:30px}
+      .digits{grid-template-columns: repeat(4, 1fr)}
+      .stats{grid-template-columns: repeat(2, 1fr)}
+      .grid2{grid-template-columns:1fr}
+      nav{display:none} /* keep it dead simple for MVP */
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="brand">
+        <b>justkeephiking.com</b>
+        <small>PCT Yo-Yo mission control</small>
+      </div>
+      <nav>
+        <a href="#status">Live Status</a>
+        <a href="#log">Trail Log</a>
+        <a href="#route">Route Map</a>
+        <a href="#gear">Gear</a>
+        <a href="#support">Support</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <div class="card">
+        <h1>Just Keep Hiking.</h1>
+        <p class="sub">
+          This year I’m attempting a Pacific Crest Trail <b>yo-yo</b> — Canada, then back again.
+          This page is the simple “where I am + what’s next” hub.
+        </p>
+        <div class="btnrow">
+          <a class="btn primary" href="#follow">Get updates</a>
+          <a class="btn" href="#status">View Live Status</a>
+        </div>
+
+        <div class="stats" aria-label="quick stats">
+          <div class="stat"><b id="milesDone">0</b><small>Miles completed</small></div>
+          <div class="stat"><b id="sectionNow">Planning</b><small>Current section</small></div>
+          <div class="stat"><b id="lastCheckin">—</b><small>Last check-in</small></div>
+          <div class="stat"><b id="nextTown">—</b><small>Next town/resupply</small></div>
+        </div>
+      </div>
+
+      <div class="card countdown" aria-label="countdown module">
+        <div class="cd-top">
+          <div>
+            <div class="tiny" id="cdLabel">NOBO Permit Release</div>
+            <div style="font-weight:700; font-size:16px; margin-top:2px" id="cdTitle">Round 2 opens</div>
+          </div>
+          <span class="pill" id="cdMeta">Jan 13 · 10:30 AM PT / 12:30 PM CT</span>
+        </div>
+
+        <div class="digits">
+          <div class="digit"><b id="dDays">—</b><small>Days</small></div>
+          <div class="digit"><b id="dHours">—</b><small>Hours</small></div>
+          <div class="digit"><b id="dMins">—</b><small>Mins</small></div>
+          <div class="digit"><b id="dSecs">—</b><small>Secs</small></div>
+        </div>
+
+        <div class="meta" id="cdNote">
+          Countdown is based on official release time. After I lock my date, this switches to a “Countdown to Campo.”
+        </div>
+      </div>
+    </section>
+
+    <section id="status" class="grid2">
+      <div class="card">
+        <div class="split">
+          <h2>Right now</h2>
+          <span class="status-pill"><span class="dot"></span><span id="statusState">Planning / Permit Day</span></span>
+        </div>
+        <div class="hr"></div>
+        <p><b style="color:var(--text)">Area:</b> <span id="statusArea">Not sharing precise location publicly</span></p>
+        <p style="margin-top:8px"><b style="color:var(--text)">Latest:</b> <span id="statusBlurb">Finalizing my NOBO start date today.</span></p>
+        <p style="margin-top:8px"><b style="color:var(--text)">Next update:</b> <span id="statusNext">After permit is confirmed.</span></p>
+        <div class="btnrow" style="margin-top:14px">
+          <a class="btn" href="#log">Open today’s log</a>
+        </div>
+      </div>
+
+      <div class="card" id="follow">
+        <h2>Follow the journey</h2>
+        <p>Fast, low-drama updates. Weekly recaps once the trail begins.</p>
+        <div class="hr"></div>
+        <p class="tiny">
+          MVP note: this is a placeholder box. If you want instant signups today, use a Google Form / Mailchimp embed later.
+        </p>
+        <div class="btnrow" style="margin-top:14px">
+          <a class="btn primary" href="#" onclick="alert('MVP placeholder — add a signup form when ready.'); return false;">Subscribe</a>
+          <a class="btn" href="#support">Support</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid2" style="margin-top:14px">
+      <div class="card" id="log">
+        <h2>Trail log</h2>
+        <p>Coming online as short daily entries (miles, lesson, photo) once I’m moving.</p>
+      </div>
+      <div class="card" id="support">
+        <h2>Support</h2>
+        <p>Fuel for the yo-yo: wishlist, sponsor page, or one-time support. (Links coming.)</p>
+      </div>
+    </section>
+
+    <section class="card" style="margin-top:14px" id="route">
+      <h2>Route map</h2>
+      <p>MVP: map module later. For now, the site stays fast and signal-friendly.</p>
+    </section>
+
+    <section class="card" style="margin-top:14px" id="gear">
+      <h2>Gear</h2>
+      <p>A clean gear list + base weight, with a change log. (Later. After we win permitting day.)</p>
+    </section>
+
+    <div class="foot">
+      Location is intentionally approximate. Updates may lag due to signal. © <span id="year"></span> Just Keep Hiking.
+    </div>
+  </div>
+
+  <script>
+    // =========================
+    // QUICK CONFIG (edit these)
+    // =========================
+
+    // Permit release: Jan 13, 2026 @ 10:30 AM PT (PST, UTC-8) => 18:30Z
+    const permitReleaseUTC = "2026-01-13T18:30:00Z";
+
+    // After you finalize, set your start date here (local date okay) and flip mode to "start"
+    // Example: "2026-04-17T07:00:00-07:00" (Campo morning PT)
+    const startDateISO = ""; // <-- fill later
+    const mode = "permit";   // "permit" or "start"
+
+    // Quick stats (manual MVP)
+    const stats = {
+      milesDone: 0,
+      sectionNow: "Permitting",
+      lastCheckin: "Today",
+      nextTown: "Campo (soon)"
+    };
+
+    // Live status (manual MVP)
+    const liveStatus = {
+      state: "Planning / Permit Day",
+      area: "Off-trail (ops planning)",
+      blurb: "Finalizing my NOBO start date today.",
+      next: "After permit is confirmed."
+    };
+
+    // =========================
+    // RENDER STATIC DATA
+    // =========================
+    document.getElementById("year").textContent = new Date().getFullYear();
+    document.getElementById("milesDone").textContent = stats.milesDone.toLocaleString();
+    document.getElementById("sectionNow").textContent = stats.sectionNow;
+    document.getElementById("lastCheckin").textContent = stats.lastCheckin;
+    document.getElementById("nextTown").textContent = stats.nextTown;
+
+    document.getElementById("statusState").textContent = liveStatus.state;
+    document.getElementById("statusArea").textContent = liveStatus.area;
+    document.getElementById("statusBlurb").textContent = liveStatus.blurb;
+    document.getElementById("statusNext").textContent = liveStatus.next;
+
+    // =========================
+    // COUNTDOWN ENGINE
+    // =========================
+    const target = (mode === "start" && startDateISO)
+      ? new Date(startDateISO)
+      : new Date(permitReleaseUTC);
+
+    const label = (mode === "start" && startDateISO) ? "Campo Start" : "NOBO Permit Release";
+    const title = (mode === "start" && startDateISO) ? "Start date locked" : "Round 2 opens";
+    const meta  = (mode === "start" && startDateISO) ? "Countdown to Campo" : "Jan 13 · 10:30 AM PT / 12:30 PM CT";
+
+    document.getElementById("cdLabel").textContent = label;
+    document.getElementById("cdTitle").textContent = title;
+    document.getElementById("cdMeta").textContent = meta;
+
+    function pad2(n){ return String(n).padStart(2, "0"); }
+
+    function tick(){
+      const now = new Date();
+      let diff = target.getTime() - now.getTime();
+
+      if (diff <= 0){
+        document.getElementById("dDays").textContent = "00";
+        document.getElementById("dHours").textContent = "00";
+        document.getElementById("dMins").textContent = "00";
+        document.getElementById("dSecs").textContent = "00";
+        document.getElementById("cdNote").textContent =
+          (mode === "permit")
+            ? "Portal time. Time to pick the date and commit."
+            : "It begins.";
+        return;
+      }
+
+      const s = Math.floor(diff/1000);
+      const days = Math.floor(s / 86400);
+      const hours = Math.floor((s % 86400) / 3600);
+      const mins = Math.floor((s % 3600) / 60);
+      const secs = s % 60;
+
+      document.getElementById("dDays").textContent = pad2(days);
+      document.getElementById("dHours").textContent = pad2(hours);
+      document.getElementById("dMins").textContent = pad2(mins);
+      document.getElementById("dSecs").textContent = pad2(secs);
+    }
+
+    tick();
+    setInterval(tick, 250);
+  </script>
+</body>
+</html>
