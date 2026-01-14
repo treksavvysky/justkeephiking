@@ -50,6 +50,7 @@ justkeephiking/
 │   ├── docker-compose.yml
 │   └── package.json
 ├── site/                   # Legacy static site (deprecated)
+├── api/                    # Standalone API service (api.justkeephiking.com)
 ├── docs/                   # Project documentation
 │   ├── PRD.md              # Product requirements
 │   └── ROADMAP.md          # Development roadmap
@@ -134,6 +135,22 @@ See [app/SUPABASE_QUICKSTART.md](app/SUPABASE_QUICKSTART.md) for detailed databa
    ```
 
 See [app/DEPLOY.md](app/DEPLOY.md) for full deployment guide.
+
+### API Service (api.justkeephiking.com)
+
+The `api/` directory contains a standalone Express service that serves
+configuration data and user listings for `api.justkeephiking.com`.
+
+```bash
+cd api
+cp .env.example .env
+npm install
+npm start
+```
+
+By default the service listens on port 4000. Configure `SUPABASE_URL` and
+`SUPABASE_ANON_KEY` (or `SUPABASE_SERVICE_ROLE_KEY`) in `.env` to enable
+`/config`, and add `SUPABASE_SERVICE_ROLE_KEY` for `/users`.
 
 ## 📚 Documentation
 
