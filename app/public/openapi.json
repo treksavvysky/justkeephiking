@@ -11,12 +11,12 @@
   },
   "servers": [
     {
-      "url": "https://api.justkeephiking.com/v1",
+      "url": "https://justkeephiking.com/api/v1",
       "description": "Production API"
     },
     {
-      "url": "https://justkeephiking.com/api/v1",
-      "description": "Main domain (alternative)"
+      "url": "https://api.justkeephiking.com/v1",
+      "description": "API subdomain (coming soon)"
     }
   ],
   "paths": {
