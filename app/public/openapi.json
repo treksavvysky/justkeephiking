@@ -1,0 +1,552 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "JustKeepHiking.com API",
+    "description": "Track George's 2026 Pacific Crest Trail thru-hike in real-time. Access current location, trail updates, statistics, and gear information for the 2,650-mile journey from Mexico to Canada.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "George",
+      "url": "https://justkeephiking.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.justkeephiking.com/v1",
+      "description": "Production API"
+    },
+    {
+      "url": "https://justkeephiking.com/api/v1",
+      "description": "Main domain (alternative)"
+    }
+  ],
+  "paths": {
+    "/status": {
+      "get": {
+        "summary": "Get current trail status",
+        "description": "Returns George's current location, status, and live statistics. This is the primary endpoint for 'Where is George now?' queries.",
+        "operationId": "getStatus",
+        "tags": ["Status"],
+        "responses": {
+          "200": {
+            "description": "Current trail status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatusResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Status not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/updates": {
+      "get": {
+        "summary": "Get trail updates",
+        "description": "Returns trail updates (micro-posts) with pagination. Public updates by default; requires API key for friends/sponsors content.",
+        "operationId": "getUpdates",
+        "tags": ["Updates"],
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Number of updates to return (max 100)",
+            "schema": {
+              "type": "integer",
+              "default": 20,
+              "minimum": 1,
+              "maximum": 100
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "Pagination offset",
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "minimum": 0
+            }
+          },
+          {
+            "name": "visibility",
+            "in": "query",
+            "description": "Filter by visibility level (requires API key for non-public)",
+            "schema": {
+              "type": "string",
+              "enum": ["public", "friends", "sponsors"],
+              "default": "public"
+            }
+          }
+        ],
+        "security": [
+          {},
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of trail updates",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdatesResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - API key required for non-public content",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/stats": {
+      "get": {
+        "summary": "Get trail statistics",
+        "description": "Returns aggregated statistics about the hike including totals, averages, and records.",
+        "operationId": "getStats",
+        "tags": ["Statistics"],
+        "responses": {
+          "200": {
+            "description": "Trail statistics",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/gear": {
+      "get": {
+        "summary": "Get gear list",
+        "description": "Returns the complete gear list with weights and categories.",
+        "operationId": "getGear",
+        "tags": ["Gear"],
+        "parameters": [
+          {
+            "name": "category",
+            "in": "query",
+            "description": "Filter by gear category",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Gear list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GearResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "API Key",
+        "description": "API key for accessing protected content. Format: Bearer sk_live_..."
+      }
+    },
+    "schemas": {
+      "StatusResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "mode": {
+                "type": "string",
+                "enum": ["permit", "start"],
+                "example": "start"
+              },
+              "status": {
+                "type": "object",
+                "properties": {
+                  "state": {
+                    "type": "string",
+                    "example": "On Trail"
+                  },
+                  "area": {
+                    "type": "string",
+                    "example": "Sierra Nevada"
+                  },
+                  "blurb": {
+                    "type": "string",
+                    "example": "Crossing Forester Pass today!"
+                  },
+                  "next": {
+                    "type": "string",
+                    "example": "Resupply in Bishop (3 days)"
+                  }
+                }
+              },
+              "location": {
+                "type": "object",
+                "properties": {
+                  "currentMile": {
+                    "type": "number",
+                    "example": 789.5
+                  },
+                  "totalMiles": {
+                    "type": "number",
+                    "example": 2650
+                  },
+                  "percentComplete": {
+                    "type": "number",
+                    "example": 29.8
+                  },
+                  "section": {
+                    "type": "string",
+                    "example": "Sierra Nevada"
+                  },
+                  "lastCheckin": {
+                    "type": "string",
+                    "example": "2 hours ago"
+                  },
+                  "nextTown": {
+                    "type": "string",
+                    "example": "Bishop"
+                  }
+                }
+              },
+              "stats": {
+                "type": "object",
+                "properties": {
+                  "milesDone": {
+                    "type": "number",
+                    "example": 789.5
+                  },
+                  "milesRemaining": {
+                    "type": "number",
+                    "example": 1860.5
+                  },
+                  "startDate": {
+                    "type": "string",
+                    "format": "date-time"
+                  },
+                  "daysOnTrail": {
+                    "type": "integer",
+                    "example": 45
+                  },
+                  "averageMilesPerDay": {
+                    "type": "number",
+                    "example": 17.5
+                  }
+                }
+              }
+            }
+          },
+          "context": {
+            "type": "string",
+            "description": "AI-friendly context summary",
+            "example": "George is currently hiking through the Sierra Nevada, having completed 30% of the PCT."
+          }
+        }
+      },
+      "UpdatesResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TrailUpdate"
+            }
+          },
+          "pagination": {
+            "type": "object",
+            "properties": {
+              "limit": {
+                "type": "integer"
+              },
+              "offset": {
+                "type": "integer"
+              },
+              "total": {
+                "type": "integer"
+              },
+              "hasMore": {
+                "type": "boolean"
+              }
+            }
+          },
+          "context": {
+            "type": "string",
+            "description": "AI-friendly context summary"
+          }
+        }
+      },
+      "TrailUpdate": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "milesHiked": {
+            "type": "number",
+            "nullable": true
+          },
+          "currentMile": {
+            "type": "number",
+            "nullable": true
+          },
+          "location": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "lat": {
+                "type": "number",
+                "nullable": true
+              },
+              "lon": {
+                "type": "number",
+                "nullable": true
+              }
+            }
+          },
+          "note": {
+            "type": "string",
+            "nullable": true
+          },
+          "photoUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "visibility": {
+            "type": "string",
+            "enum": ["public", "friends", "sponsors"]
+          }
+        }
+      },
+      "StatsResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "totals": {
+                "type": "object",
+                "properties": {
+                  "milesDone": {
+                    "type": "number"
+                  },
+                  "milesRemaining": {
+                    "type": "number"
+                  },
+                  "daysOnTrail": {
+                    "type": "integer"
+                  },
+                  "zeroDays": {
+                    "type": "integer"
+                  },
+                  "resupplyStops": {
+                    "type": "integer"
+                  }
+                }
+              },
+              "averages": {
+                "type": "object",
+                "properties": {
+                  "milesPerDay": {
+                    "type": "number"
+                  },
+                  "milesPerDayExcludingZeros": {
+                    "type": "number"
+                  }
+                }
+              }
+            }
+          },
+          "context": {
+            "type": "string",
+            "description": "AI-friendly context summary"
+          }
+        }
+      },
+      "GearResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "totalWeight": {
+                "type": "object",
+                "properties": {
+                  "base": {
+                    "type": "number"
+                  },
+                  "worn": {
+                    "type": "number"
+                  },
+                  "consumable": {
+                    "type": "number"
+                  },
+                  "total": {
+                    "type": "number"
+                  },
+                  "unit": {
+                    "type": "string",
+                    "example": "lbs"
+                  }
+                }
+              },
+              "items": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/GearItem"
+                }
+              },
+              "categories": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "context": {
+            "type": "string",
+            "description": "AI-friendly context summary"
+          }
+        }
+      },
+      "GearItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "weightOz": {
+            "type": "number",
+            "nullable": true
+          },
+          "weightGrams": {
+            "type": "number",
+            "nullable": true
+          },
+          "quantity": {
+            "type": "integer"
+          },
+          "worn": {
+            "type": "boolean"
+          },
+          "consumable": {
+            "type": "boolean"
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "url": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "error"
+          },
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "example": "RESOURCE_NOT_FOUND"
+              },
+              "message": {
+                "type": "string",
+                "example": "Resource not found"
+              },
+              "details": {
+                "type": "string",
+                "nullable": true
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Status",
+      "description": "Current trail status and location"
+    },
+    {
+      "name": "Updates",
+      "description": "Trail updates and micro-posts"
+    },
+    {
+      "name": "Statistics",
+      "description": "Aggregated trail statistics"
+    },
+    {
+      "name": "Gear",
+      "description": "Gear list and equipment"
+    }
+  ]
+}

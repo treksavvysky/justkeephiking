@@ -35,8 +35,9 @@ The project uses a **modern full-stack architecture** with strategic separation 
 - **File Storage**: Supabase Storage (photos, attachments)
 - **Deployment**: Docker + Docker Compose on VPS via Dokploy
 - **Domain Strategy**:
-  - `justkeephiking.com` - Public landing page
-  - `app.justkeephiking.com` - Admin dashboard and advanced features
+  - `justkeephiking.com` - Public landing page and main app
+  - `api.justkeephiking.com` - Backend API for AI/GPT integration (also accessible via /api/v1/*)
+  - `app.justkeephiking.com` - Admin dashboard (future subdomain)
 
 #### Directory Structure
 
@@ -57,7 +58,8 @@ justkeephiking/
 │   │   │   │   └── page.tsx
 │   │   │   ├── api/           # API routes
 │   │   │   │   ├── config/
-│   │   │   │   └── trail-updates/
+│   │   │   │   ├── trail-updates/
+│   │   │   │   └── v1/        # AI/GPT API endpoints
 │   │   │   ├── layout.tsx
 │   │   │   └── globals.css
 │   │   ├── components/
@@ -139,6 +141,17 @@ justkeephiking/
 10. **chat_messages** - Chat messages (future)
     - Real-time messaging for friends/family
     - Fields: `room_id`, `author_id`, `content`, `sent_at`
+
+11. **api_keys** - API keys for external integrations
+    - Authentication for custom GPTs and AI assistants
+    - Fields: `key_hash`, `key_prefix`, `name`, `scope`, `rate_limit`, `revoked`, `expires_at`
+    - Scopes: `read` (for GPTs), `write` (for automation), `admin` (full access)
+    - RLS: Admin-only access
+
+12. **api_usage** - API usage analytics
+    - Tracks API calls for monitoring and rate limiting
+    - Fields: `api_key_id`, `endpoint`, `method`, `status_code`, `response_time_ms`, `ip_address`
+    - Automatic cleanup after 30 days
 
 #### Row-Level Security (RLS)
 
@@ -367,12 +380,20 @@ All API routes follow REST conventions:
 - [x] API routes for site config and trail updates
 - [x] Docker deployment configuration
 - [x] Documentation (DEPLOY.md, SUPABASE_QUICKSTART.md)
+- [x] Admin authentication (Supabase Auth with email + OAuth)
+- [x] Admin dashboard for content management
+- [x] Site config editor
+- [x] Trail update form
+- [x] Quick action buttons
+- [x] Backend API for AI/GPT integration (api.justkeephiking.com)
+- [x] API key authentication system
+- [x] Core API endpoints (status, updates, stats, gear)
+- [x] OpenAPI specification for custom GPT setup
+- [x] API keys management dashboard
 
 ### 🔄 In Progress
 
-- [ ] Admin authentication (Supabase Auth integration)
-- [ ] Admin dashboard for content management
-- [ ] Photo upload functionality
+- [ ] Photo upload functionality (bucket created, testing needed)
 - [ ] Email notification system
 
 ### ⏳ Planned (See ROADMAP.md)
@@ -382,7 +403,6 @@ All API routes follow REST conventions:
 - [ ] Gear list page (public)
 - [ ] GPS tracking with privacy controls
 - [ ] Live chat for friends/family
-- [ ] AI API for Claude/ChatGPT integration
 - [ ] Email digest (daily/weekly summaries)
 - [ ] Resupply planner tool
 - [ ] Training log (pre-hike)
@@ -396,9 +416,22 @@ All API routes follow REST conventions:
 | `app/src/lib/supabase.ts` | Supabase client initialization |
 | `app/src/lib/actions.ts` | Server actions (data fetching) |
 | `app/src/types/index.ts` | TypeScript interfaces |
-| `app/supabase/migrations/001_initial_schema.sql` | Database schema |
+| `app/supabase/migrations/001_initial_schema.sql` | Initial database schema |
+| `app/supabase/migrations/002_api_keys.sql` | API keys schema |
+| `app/src/app/api/v1/status/route.ts` | API: Current trail status |
+| `app/src/app/api/v1/updates/route.ts` | API: Trail updates feed |
+| `app/src/app/api/v1/stats/route.ts` | API: Trail statistics |
+| `app/src/app/api/v1/gear/route.ts` | API: Gear list |
+| `app/src/lib/api/auth.ts` | API key authentication utilities |
+| `app/public/openapi.json` | OpenAPI specification |
 | `app/DEPLOY.md` | Deployment instructions |
 | `app/SUPABASE_QUICKSTART.md` | Database operations guide |
+| `app/API_DESIGN.md` | API architecture documentation |
+| `app/API_SUBDOMAIN_SETUP.md` | API subdomain setup guide |
+| `app/API_IMPLEMENTATION_COMPLETE.md` | API implementation summary |
+| `app/ADMIN_SETUP.md` | Admin dashboard setup guide |
+| `app/PHASE2_COMPLETE.md` | Phase 2 completion report |
+| `AGENTS.md` | AI agent integration guide |
 | `PRD.md` | Product Requirements Document |
 | `ROADMAP.md` | Project roadmap and priorities |
 
@@ -416,10 +449,10 @@ SET miles_done = 150,
 WHERE id = (SELECT id FROM site_config LIMIT 1);
 ```
 
-**Option 2: API (once admin dashboard built)**
-- Log in to `app.justkeephiking.com`
-- Click "Update Stats" form
-- Submit new values
+**Option 2: Admin Dashboard**
+- Log in to `/login`
+- Navigate to `/dashboard/config`
+- Update values and click "Save Changes"
 
 ### Create Trail Update
 
@@ -429,10 +462,17 @@ INSERT INTO trail_updates (miles_hiked, current_mile, location_name, note, visib
 VALUES (14.2, 150.5, 'Forester Pass', 'Highest point on the PCT!', 'public');
 ```
 
-**Option 2: API**
+**Option 2: Admin Dashboard**
+- Log in to `/login`
+- Navigate to `/dashboard/update`
+- Fill in location, miles, note, and photo
+- Click "Post Update"
+
+**Option 3: API (with API key)**
 ```bash
 curl -X POST https://justkeephiking.com/api/trail-updates \
   -H "Content-Type: application/json" \
+  -H "Authorization: Bearer sk_live_..." \
   -d '{
     "milesHiked": 14.2,
     "currentMile": 150.5,
@@ -442,11 +482,35 @@ curl -X POST https://justkeephiking.com/api/trail-updates \
   }'
 ```
 
-### Add Blog Post
+### Query Trail Data via API (for AI assistants)
 
-**Coming soon**: Admin dashboard with markdown editor.
+**Current Status**:
+```bash
+curl https://api.justkeephiking.com/v1/status
+```
 
-**For now**: Direct SQL insert, then update admin UI later.
+**Recent Updates**:
+```bash
+curl https://api.justkeephiking.com/v1/updates?limit=5
+```
+
+**Trail Statistics**:
+```bash
+curl https://api.justkeephiking.com/v1/stats
+```
+
+**Gear List**:
+```bash
+curl https://api.justkeephiking.com/v1/gear
+```
+
+### Manage API Keys
+
+- Navigate to `/dashboard/api-keys`
+- Click "+ Create New API Key"
+- Choose scope (`read` for GPTs, `write` for automation, `admin` for full access)
+- Copy the key (only shown once!)
+- Use key in custom GPT configuration
 
 ## Privacy & Security Notes
 
@@ -498,13 +562,18 @@ curl -X POST https://justkeephiking.com/api/trail-updates \
 
 - **Product Requirements**: See `docs/PRD.md`
 - **Project Roadmap**: See `docs/ROADMAP.md`
+- **AI Agent Integration**: See `AGENTS.md`
 - **Deployment Guide**: See `app/DEPLOY.md`
 - **Database Guide**: See `app/SUPABASE_QUICKSTART.md`
+- **Admin Setup Guide**: See `app/ADMIN_SETUP.md`
+- **API Documentation**: See `app/API_DESIGN.md`
+- **API Subdomain Setup**: See `app/API_SUBDOMAIN_SETUP.md`
+- **Phase 2 Completion Report**: See `app/PHASE2_COMPLETE.md`
 - **Supabase Dashboard**: https://uoopfkziigqnyssdwenz.supabase.co
 - **GitHub Repository**: https://github.com/treksavvysky/justkeephiking
 
 ---
 
 **Last Updated**: 2026-01-13
-**Current Version**: v1.0 (Next.js + Supabase, pre-auth)
-**Next Milestone**: Admin dashboard with authentication
+**Current Version**: v1.1 (Next.js + Supabase + Admin Dashboard + API)
+**Next Milestone**: Deploy API subdomain and configure custom GPT

@@ -7,6 +7,7 @@ const navItems = [
   { href: '/dashboard', label: 'Home' },
   { href: '/dashboard/update', label: 'Update' },
   { href: '/dashboard/config', label: 'Config' },
+  { href: '/dashboard/api-keys', label: 'API Keys' },
 ];
 
 export default function DashboardNav() {

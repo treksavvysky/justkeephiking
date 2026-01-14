@@ -17,12 +17,14 @@ justkeephiking.com is a personal hiking platform built to document a 2026 Pacifi
 
 - ⏱️ **Live Countdown** - Multi-stage countdown system (permit day → trail start)
 - 📍 **Trail Updates** - Micro-posts with location, mileage, and photos
-- 📝 **Blog Posts** - Long-form narratives and town stop stories
-- 📸 **Photo Galleries** - Organized collections by section or theme
+- 📝 **Blog Posts** - Long-form narratives and town stop stories (coming soon)
+- 📸 **Photo Galleries** - Organized collections by section or theme (coming soon)
 - ⚖️ **Gear Tracking** - Complete gear list with weights and categories
 - 🔒 **Tiered Access** - Public, friends-only, and sponsor-exclusive content
-- 🤖 **AI Integration** - API endpoints for Claude/GPT to query trail data
-- 📧 **Email Digest** - Daily/weekly update summaries
+- 🔐 **Admin Dashboard** - Content management with authentication
+- 🤖 **AI Integration** - RESTful API for custom GPTs and AI assistants
+- 🔑 **API Keys** - Secure authentication for external integrations
+- 📧 **Email Digest** - Daily/weekly update summaries (coming soon)
 
 ## 🏗️ Architecture
 
@@ -54,6 +56,7 @@ justkeephiking/
 │   ├── PRD.md              # Product requirements
 │   └── ROADMAP.md          # Development roadmap
 ├── CLAUDE.md               # AI assistant context
+├── AGENTS.md               # AI agent integration guide
 └── README.md               # This file
 ```
 
@@ -99,13 +102,13 @@ justkeephiking/
 
 1. Create a Supabase project at [supabase.com](https://supabase.com)
 2. Copy your credentials to `.env.local`
-3. Run the migration in Supabase SQL Editor:
+3. Run migrations in Supabase SQL Editor:
    ```bash
-   # Copy contents of app/supabase/migrations/001_initial_schema.sql
-   # Paste into SQL Editor and execute
+   # Execute app/supabase/migrations/001_initial_schema.sql
+   # Execute app/supabase/migrations/002_api_keys.sql
    ```
 
-See [app/SUPABASE_QUICKSTART.md](app/SUPABASE_QUICKSTART.md) for detailed database setup.
+See [app/SUPABASE_QUICKSTART.md](app/SUPABASE_QUICKSTART.md) and [app/ADMIN_SETUP.md](app/ADMIN_SETUP.md) for detailed setup.
 
 ## 📦 Deployment
 
@@ -137,15 +140,58 @@ See [app/DEPLOY.md](app/DEPLOY.md) for full deployment guide.
 
 ## 📚 Documentation
 
-- **[CLAUDE.md](CLAUDE.md)** - Complete architecture and development guide for AI assistants
+### Core Guides
+- **[CLAUDE.md](CLAUDE.md)** - Complete architecture and development guide
+- **[AGENTS.md](AGENTS.md)** - AI agent integration guide (custom GPTs, Claude Projects)
 - **[docs/PRD.md](docs/PRD.md)** - Product requirements and feature specifications
 - **[docs/ROADMAP.md](docs/ROADMAP.md)** - Development roadmap and priorities
-- **[app/DEPLOY.md](app/DEPLOY.md)** - Deployment instructions
+
+### Setup & Deployment
+- **[app/DEPLOY.md](app/DEPLOY.md)** - Production deployment instructions
 - **[app/SUPABASE_QUICKSTART.md](app/SUPABASE_QUICKSTART.md)** - Database operations guide
+- **[app/ADMIN_SETUP.md](app/ADMIN_SETUP.md)** - Admin dashboard setup guide
+
+### API Documentation
+- **[app/API_DESIGN.md](app/API_DESIGN.md)** - API architecture and design decisions
+- **[app/API_SUBDOMAIN_SETUP.md](app/API_SUBDOMAIN_SETUP.md)** - API subdomain deployment
+- **[app/API_IMPLEMENTATION_COMPLETE.md](app/API_IMPLEMENTATION_COMPLETE.md)** - Implementation summary
+
+### Completion Reports
+- **[app/PHASE2_COMPLETE.md](app/PHASE2_COMPLETE.md)** - Phase 2 completion report
 
 ## 🗂️ API Reference
 
-### Endpoints
+### AI/GPT Integration API (v1)
+
+**Base URL**: `https://api.justkeephiking.com/v1/`
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/v1/status` | GET | Current trail status and location |
+| `/v1/updates` | GET | Trail updates feed (paginated) |
+| `/v1/stats` | GET | Trail statistics and pace |
+| `/v1/gear` | GET | Gear list with weights |
+| `/v1/openapi` | GET | OpenAPI specification |
+
+**Example Usage**:
+
+```bash
+# Get current status
+curl https://api.justkeephiking.com/v1/status
+
+# Get recent updates
+curl https://api.justkeephiking.com/v1/updates?limit=5
+
+# Get trail statistics
+curl https://api.justkeephiking.com/v1/stats
+
+# Get gear list
+curl https://api.justkeephiking.com/v1/gear
+```
+
+**For AI Assistants**: See [AGENTS.md](AGENTS.md) for complete integration guide including custom GPT setup.
+
+### Legacy API Endpoints
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
@@ -153,26 +199,6 @@ See [app/DEPLOY.md](app/DEPLOY.md) for full deployment guide.
 | `/api/config` | PUT | Update site config (admin only) |
 | `/api/trail-updates` | GET | List trail updates (with pagination) |
 | `/api/trail-updates` | POST | Create new trail update (admin only) |
-
-### Example Usage
-
-```bash
-# Get current configuration
-curl https://justkeephiking.com/api/config
-
-# Get trail updates
-curl https://justkeephiking.com/api/trail-updates?limit=10
-
-# Create a trail update
-curl -X POST https://justkeephiking.com/api/trail-updates \
-  -H "Content-Type: application/json" \
-  -d '{
-    "locationName": "Forester Pass",
-    "currentMile": 150.5,
-    "note": "Highest point on the PCT!",
-    "visibility": "public"
-  }'
-```
 
 ## 🎨 Design
 
@@ -204,19 +230,30 @@ The design is inspired by alpenglow on Sierra Nevada peaks:
 - [x] API routes for config and trail updates
 - [x] Docker deployment setup
 
-### 🔄 Phase 2: Admin & Content (In Progress)
-- [ ] Admin authentication (Supabase Auth)
-- [ ] Admin dashboard at app.justkeephiking.com
-- [ ] Trail update form with photo upload
-- [ ] Blog post editor with markdown support
+### ✅ Phase 2: Admin & Content (Complete)
+- [x] Admin authentication (Supabase Auth with OAuth)
+- [x] Admin dashboard with protected routes
+- [x] Site config editor
+- [x] Trail update form with photo upload
+- [x] Quick action buttons for mile tracking
+- [x] API key authentication system
+- [x] Backend API for AI/GPT integration
+- [x] OpenAPI specification for custom GPTs
+- [x] API keys management dashboard
 
-### ⏳ Phase 3: Advanced Features (Planned)
+### 🔄 Phase 3: Content Consumption (In Progress)
+- [ ] Public trail updates feed at `/updates`
+- [ ] Blog post editor with markdown support
 - [ ] Gallery management with bulk upload
-- [ ] GPS tracking with privacy controls
 - [ ] Email notifications (daily/weekly digest)
-- [ ] Live chat for friends/family
 - [ ] Gear list page (public)
-- [ ] AI API for natural language queries
+
+### ⏳ Phase 4: Advanced Features (Planned)
+- [ ] GPS tracking with privacy controls
+- [ ] Live chat for friends/family
+- [ ] Rate limiting middleware for API
+- [ ] API usage analytics dashboard
+- [ ] Webhooks for real-time notifications
 
 See [docs/ROADMAP.md](docs/ROADMAP.md) for detailed timeline and priorities.
 
@@ -248,8 +285,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Current Status**: Permit Phase (Countdown to 2026-01-13)
-**Trail Start**: April 2026 (date TBD after permit confirmation)
+**Current Status**: Permit Phase (Countdown to permit slot opening)
+**Trail Start**: May 11, 2026 (confirmed)
 **Last Updated**: 2026-01-13
+**Version**: v1.1 (Admin Dashboard + API Integration)
 
-*Keep hiking. Keep dreaming. Just keep going.* 🥾
+*Keep hiking. Keep building. Just keep going.* 🥾
