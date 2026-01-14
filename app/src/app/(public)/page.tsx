@@ -96,7 +96,7 @@ export default async function Home() {
           >
             <div className="border border-[var(--border)] rounded-[14px] p-3 bg-[rgba(255,255,255,0.02)]">
               <b className="block text-base font-[tabular-nums]">
-                {config.stats.milesDone.toLocaleString()}
+                {config.stats?.milesDone?.toLocaleString() || 0}
               </b>
               <small className="text-[var(--muted)] text-[11px]">
                 Miles completed
@@ -104,7 +104,7 @@ export default async function Home() {
             </div>
             <div className="border border-[var(--border)] rounded-[14px] p-3 bg-[rgba(255,255,255,0.02)]">
               <b className="block text-base font-[tabular-nums]">
-                {config.stats.sectionNow}
+                {config.stats?.sectionNow || 'N/A'}
               </b>
               <small className="text-[var(--muted)] text-[11px]">
                 Current section
@@ -112,7 +112,7 @@ export default async function Home() {
             </div>
             <div className="border border-[var(--border)] rounded-[14px] p-3 bg-[rgba(255,255,255,0.02)]">
               <b className="block text-base font-[tabular-nums]">
-                {config.stats.lastCheckin}
+                {config.stats?.lastCheckin || 'N/A'}
               </b>
               <small className="text-[var(--muted)] text-[11px]">
                 Last check-in
@@ -120,7 +120,7 @@ export default async function Home() {
             </div>
             <div className="border border-[var(--border)] rounded-[14px] p-3 bg-[rgba(255,255,255,0.02)]">
               <b className="block text-base font-[tabular-nums]">
-                {config.stats.nextTown}
+                {config.stats?.nextTown || 'N/A'}
               </b>
               <small className="text-[var(--muted)] text-[11px]">
                 Next town/resupply
@@ -138,21 +138,21 @@ export default async function Home() {
             <h2 className="m-0 mb-2 text-base">Right now</h2>
             <span className="inline-flex items-center gap-2 text-xs py-1.5 px-2.5 rounded-full bg-[var(--good)] border border-[rgba(255,123,95,0.40)] text-[var(--text)]">
               <span className="w-2 h-2 rounded-full bg-[var(--accent)]"></span>
-              <span>{config.liveStatus.state}</span>
+              <span>{config.liveStatus?.state || 'Good'}</span>
             </span>
           </div>
           <div className="h-px bg-[var(--border)] my-4"></div>
           <p className="m-0 text-[var(--muted)] leading-relaxed text-sm">
             <b className="text-[var(--text)]">Area:</b>{' '}
-            {config.liveStatus.area}
+            {config.liveStatus?.area || 'N/A'}
           </p>
           <p className="m-0 mt-2 text-[var(--muted)] leading-relaxed text-sm">
             <b className="text-[var(--text)]">Latest:</b>{' '}
-            {config.liveStatus.blurb}
+            {config.liveStatus?.blurb || 'No updates yet'}
           </p>
           <p className="m-0 mt-2 text-[var(--muted)] leading-relaxed text-sm">
             <b className="text-[var(--text)]">Next update:</b>{' '}
-            {config.liveStatus.next}
+            {config.liveStatus?.next || 'Check back soon'}
           </p>
           <div className="flex gap-2.5 flex-wrap mt-3.5">
             <a href="#log" className="btn">

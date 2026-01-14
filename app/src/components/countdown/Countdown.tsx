@@ -29,8 +29,8 @@ export default function Countdown({ config }: CountdownProps) {
   useEffect(() => {
     const tick = () => {
       const now = new Date();
-      const releaseTime = new Date(config.permitReleaseUTC);
-      const mySlotTime = new Date(config.myPermitSlotUTC);
+      const releaseTime = new Date(config.permitReleaseUTC || '');
+      const mySlotTime = new Date(config.myPermitSlotUTC || '');
       const startTime = config.startDateISO
         ? new Date(config.startDateISO)
         : null;
