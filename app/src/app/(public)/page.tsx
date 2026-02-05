@@ -5,21 +5,21 @@ import { getSiteConfig } from '@/lib/actions';
 
 // Fallback config if database is not yet set up
 const fallbackConfig: SiteConfig = {
-  mode: 'permit',
+  mode: 'start',
   permitReleaseUTC: '2026-01-13T18:30:00Z',
   myPermitSlotUTC: '2026-01-13T20:48:07Z',
-  startDateISO: '',
+  startDateISO: '2026-05-11T07:00:00-07:00',
   stats: {
     milesDone: 0,
-    sectionNow: 'Permitting',
+    sectionNow: 'Pre-hike',
     lastCheckin: 'Today',
-    nextTown: 'Campo (soon)',
+    nextTown: 'Campo',
   },
   liveStatus: {
-    state: 'Planning / Permit Day',
-    area: 'Off-trail (ops planning)',
-    blurb: 'Finalizing my NOBO start date today.',
-    next: 'After permit is confirmed.',
+    state: 'Permit approved',
+    area: 'Off-trail (preparing)',
+    blurb: 'Permit approved! Counting down to May 11 at Campo.',
+    next: 'Gear shakedowns and final prep.',
   },
 };
 

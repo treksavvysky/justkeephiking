@@ -45,10 +45,10 @@ export default function Countdown({ config }: CountdownProps) {
       if (config.mode === 'start' && startTime) {
         // Final mode: counting down to trail start
         target = startTime;
-        newLabel = 'Campo Start';
-        newTitle = 'Start date locked';
-        newMeta = 'Countdown to Campo';
-        newNote = 'It begins.';
+        newLabel = 'TRAIL START';
+        newTitle = 'Adventures awaiting';
+        newMeta = 'May 11 · Campo, CA';
+        newNote = 'Permit approved. Gear dialed. 2,650 miles of magic ahead.';
       } else if (now < releaseTime) {
         // Stage 1: Before Round 2 opens
         target = releaseTime;
