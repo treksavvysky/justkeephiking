@@ -58,7 +58,7 @@ export async function resetPassword(prevState: any, formData: FormData) {
   const email = formData.get('email') as string;
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback?next=/reset-password/update`,
+    redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback?next=/reset-password/update`,
   });
 
   if (error) {
@@ -72,6 +72,15 @@ export async function updatePassword(prevState: any, formData: FormData) {
   const supabase = await createClient();
 
   const password = formData.get('password') as string;
+  const confirmPassword = formData.get('confirmPassword') as string;
+
+  if (password !== confirmPassword) {
+    return { error: 'Passwords do not match' };
+  }
+
+  if (password.length < 8) {
+    return { error: 'Password must be at least 8 characters' };
+  }
 
   const { error } = await supabase.auth.updateUser({
     password,
@@ -91,7 +100,7 @@ export async function signInWithOAuth(provider: 'google' | 'github') {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider,
     options: {
-      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
+      redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
     },
   });
 
