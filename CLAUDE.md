@@ -19,9 +19,9 @@ npm run build        # Production build (uses standalone output for Docker)
 npm run lint         # ESLint (Next.js defaults, no custom config)
 ```
 
-Docker (production):
+Docker (production, from `app/`):
 ```bash
-docker-compose up --build -d    # Build and run
+docker-compose up --build -d    # Build and run (Dockerfile + docker-compose.yml are in app/)
 docker-compose logs -f          # View logs
 ```
 
@@ -72,7 +72,7 @@ app/src/
 
 **Route groups**: `(public)` for the landing page, `(auth)` for login/signup with a minimal layout, `dashboard/` for admin pages (auth-protected via layout).
 
-**Dashboard auth**: `dashboard/layout.tsx` checks Supabase auth and redirects unauthenticated users. The user's role comes from the `profiles` table.
+**Dashboard auth**: `dashboard/layout.tsx` checks Supabase auth and redirects unauthenticated users. The user's role comes from the `profiles` table. Implemented dashboard sub-routes: `/dashboard/config` (site config editor), `/dashboard/update` (trail update creator), `/dashboard/api-keys` (API key management).
 
 **API v1 routes** (`/api/v1/*`) are designed for AI/GPT consumption — responses include a `context` string and `_meta` with timing info. An OpenAPI spec is served at `/api/v1/openapi` and as a static file at `public/openapi.json`.
 
@@ -80,7 +80,7 @@ app/src/
 
 ### Database
 
-Schema defined in `supabase/migrations/` (001 = core tables, 002 = API keys). All tables use Row-Level Security. Key tables: `site_config` (single-row landing page config), `profiles` (user roles), `trail_updates`, `blog_posts`, `galleries`, `gallery_photos`, `gear_items`, `email_subscribers`, `api_keys`, `api_usage`.
+Schema defined in `supabase/migrations/` (001 = core tables, 002 = API keys). All tables use Row-Level Security. Key tables: `site_config` (single-row landing page config), `profiles` (user roles), `trail_updates`, `blog_posts`, `galleries`, `gallery_photos`, `gear_items`, `email_subscribers`, `chat_rooms`, `chat_messages`, `room_members`, `api_keys`, `api_usage`.
 
 Visibility tiers enforced via RLS: `public` (anyone), `friends` (friend role+), `sponsors` (sponsor role+), admin-only writes.
 
@@ -98,8 +98,10 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
 SUPABASE_SERVICE_ROLE_KEY=...
 ```
 
-Optional (email):
+Optional:
 ```
+NEXT_PUBLIC_APP_URL=https://justkeephiking.com
+NEXT_PUBLIC_ADMIN_URL=https://app.justkeephiking.com
 SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM
 ```
 
