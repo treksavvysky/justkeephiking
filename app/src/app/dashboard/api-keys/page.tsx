@@ -82,7 +82,7 @@ export default async function ApiKeysPage() {
           <div>
             <h3 className="font-medium mb-2">1. Create an API key</h3>
             <p className="text-muted">
-              Generate a new API key above with "Read" scope (recommended for GPTs).
+              Generate a new API key above with &quot;Read&quot; scope (recommended for GPTs).
             </p>
           </div>
           <div>
@@ -109,8 +109,8 @@ export default async function ApiKeysPage() {
           <div>
             <h3 className="font-medium mb-2">3. Test the integration</h3>
             <p className="text-muted">
-              Ask your custom GPT: "Where is George right now?" or "What were his last 5 trail
-              updates?"
+              Ask your custom GPT: &quot;Where is George right now?&quot; or &quot;What were his last 5 trail
+              updates?&quot;
             </p>
           </div>
         </div>

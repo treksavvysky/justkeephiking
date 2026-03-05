@@ -38,10 +38,12 @@ export async function GET() {
       );
     }
 
-    // Fetch trail updates for detailed statistics
+    // Fetch only public updates for a public endpoint.
+    // This avoids leaking non-public activity through aggregate calculations.
     const { data: updates, error: updatesError } = await supabase
       .from('trail_updates')
       .select('*')
+      .eq('visibility', 'public')
       .order('created_at', { ascending: false });
 
     if (updatesError) {

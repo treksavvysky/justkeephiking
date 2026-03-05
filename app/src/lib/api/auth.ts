@@ -4,7 +4,7 @@
  * Handles API key validation and rate limiting for api.justkeephiking.com
  */
 
-import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/server';
 import crypto from 'crypto';
 
 export interface ApiKeyData {
@@ -49,10 +49,9 @@ export async function validateApiKey(authHeader: string | null): Promise<AuthRes
 
   // Hash the key to compare with stored hash
   const keyHash = crypto.createHash('sha256').update(apiKey).digest('hex');
-  const keyPrefix = apiKey.substring(0, 12); // e.g., "sk_live_abc1"
-
-  // Query database for matching key
-  const supabase = await createClient();
+  // Query database for matching key.
+  // Must use service role here because external API-key callers are not Supabase-authenticated users.
+  const supabase = createAdminClient();
   const { data, error } = await supabase
     .from('api_keys')
     .select('id, key_prefix, name, scope, rate_limit, revoked, expires_at')
@@ -127,7 +126,7 @@ export async function logApiUsage(
   userAgent?: string
 ): Promise<void> {
   try {
-    const supabase = await createClient();
+    const supabase = createAdminClient();
     await supabase.from('api_usage').insert({
       api_key_id: apiKeyId,
       endpoint,
@@ -168,7 +167,7 @@ export async function generateApiKey(
   const keyHash = crypto.createHash('sha256').update(key).digest('hex');
 
   // Store in database
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { error } = await supabase.from('api_keys').insert({
     key_hash: keyHash,
     key_prefix: keyPrefix,
@@ -193,7 +192,7 @@ export async function generateApiKey(
  * @param keyId - API key ID to revoke
  */
 export async function revokeApiKey(keyId: string): Promise<boolean> {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { error } = await supabase
     .from('api_keys')
     .update({ revoked: true })

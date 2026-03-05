@@ -73,6 +73,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Only admins can create trail updates
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+
+    if (profileError || !profile || profile.role !== 'admin') {
+      return NextResponse.json(
+        { error: 'Admin access required' },
+        { status: 403 }
+      );
+    }
+
     const body = await request.json();
 
     // Validate required fields

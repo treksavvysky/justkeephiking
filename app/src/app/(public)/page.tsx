@@ -77,9 +77,9 @@ export default async function Home() {
             Just Keep Hiking.
           </h1>
           <p className="text-[var(--muted)] text-[15px] leading-relaxed m-0 mb-4">
-            This year I'm hiking the Pacific Crest Trail again — reliving the
-            memories, rediscovering the trail. This page is the simple "where I
-            am + what's next" hub.
+            This year I&apos;m hiking the Pacific Crest Trail again — reliving the
+            memories, rediscovering the trail. This page is the simple &quot;where I
+            am + what&apos;s next&quot; hub.
           </p>
           <div className="flex gap-2.5 flex-wrap">
             <a href="#follow" className="btn btn-primary">
@@ -156,7 +156,7 @@ export default async function Home() {
           </p>
           <div className="flex gap-2.5 flex-wrap mt-3.5">
             <a href="#log" className="btn">
-              Open today's log
+              Open today&apos;s log
             </a>
           </div>
         </div>
@@ -184,7 +184,7 @@ export default async function Home() {
         <div className="card" id="log">
           <h2 className="m-0 mb-2 text-base">Trail log</h2>
           <p className="m-0 text-[var(--muted)] leading-relaxed text-sm">
-            Coming online as short daily entries (miles, lesson, photo) once I'm
+            Coming online as short daily entries (miles, lesson, photo) once I&apos;m
             moving.
           </p>
         </div>

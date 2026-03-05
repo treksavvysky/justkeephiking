@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
+import Image from 'next/image';
 import imageCompression from 'browser-image-compression';
 import { createClient } from '@/lib/supabase/client';
 
@@ -134,10 +135,13 @@ export default function PhotoUpload({ onUploadComplete }: PhotoUploadProps) {
 
       {preview && (
         <div className="relative border border-border rounded-lg overflow-hidden">
-          <img
+          <Image
             src={preview}
             alt="Preview"
             className="w-full h-64 object-cover"
+            width={1200}
+            height={640}
+            unoptimized
           />
           <button
             type="button"
