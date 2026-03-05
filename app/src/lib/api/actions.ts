@@ -6,7 +6,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
-import crypto from 'crypto';
+import { generateApiKey, revokeApiKey } from '@/lib/api/auth';
 
 export async function createApiKey(
   prevState: any,
@@ -35,41 +35,23 @@ export async function createApiKey(
     return { success: false, error: 'Name is required' };
   }
 
-  // Generate random key: sk_live_[32 random hex chars]
-  const randomBytes = crypto.randomBytes(16);
-  const keySecret = randomBytes.toString('hex');
-  const key = `sk_live_${keySecret}`;
-  const keyPrefix = key.substring(0, 12);
-
-  // Hash the key for storage
-  const keyHash = crypto.createHash('sha256').update(key).digest('hex');
-
   // Calculate expiration date
-  let expiresAt: string | null = null;
+  let expiresAt: Date | undefined = undefined;
   if (expiresInDays && parseInt(expiresInDays) > 0) {
     const expDate = new Date();
     expDate.setDate(expDate.getDate() + parseInt(expiresInDays));
-    expiresAt = expDate.toISOString();
+    expiresAt = expDate;
   }
 
-  // Store in database
-  const { error } = await supabase.from('api_keys').insert({
-    key_hash: keyHash,
-    key_prefix: keyPrefix,
-    name,
-    scope,
-    created_by: user.id,
-    expires_at: expiresAt,
-  });
-
-  if (error) {
-    return { success: false, error: 'Failed to create API key: ' + error.message };
+  const generated = await generateApiKey(name, scope, user.id, expiresAt);
+  if (!generated) {
+    return { success: false, error: 'Failed to create API key' };
   }
 
   revalidatePath('/dashboard/api-keys');
 
   // Return the full key (this is the ONLY time we return it!)
-  return { success: true, key, keyPrefix };
+  return { success: true, key: generated.key, keyPrefix: generated.keyPrefix };
 }
 
 export async function revokeApiKeyAction(keyId: string): Promise<{ success: boolean; error?: string }> {
@@ -88,10 +70,9 @@ export async function revokeApiKeyAction(keyId: string): Promise<{ success: bool
     return { success: false, error: 'Unauthorized' };
   }
 
-  const { error } = await supabase.from('api_keys').update({ revoked: true }).eq('id', keyId);
-
-  if (error) {
-    return { success: false, error: 'Failed to revoke API key: ' + error.message };
+  const success = await revokeApiKey(keyId);
+  if (!success) {
+    return { success: false, error: 'Failed to revoke API key' };
   }
 
   revalidatePath('/dashboard/api-keys');

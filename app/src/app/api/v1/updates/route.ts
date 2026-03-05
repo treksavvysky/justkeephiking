@@ -16,6 +16,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import { validateApiKey } from '@/lib/api/auth';
+import { parsePaginationParams } from '@/lib/api/pagination';
 
 export async function GET(request: NextRequest) {
   const startTime = Date.now();
@@ -24,12 +25,22 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
 
     // Parse query parameters
-    const limitParam = searchParams.get('limit');
-    const offsetParam = searchParams.get('offset');
     const visibilityParam = searchParams.get('visibility') || 'public';
-
-    const limit = Math.min(parseInt(limitParam || '20'), 100);
-    const offset = parseInt(offsetParam || '0');
+    const pagination = parsePaginationParams(searchParams);
+    if (!pagination.success) {
+      return NextResponse.json(
+        {
+          status: 'error',
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: pagination.error.message,
+            details: pagination.error.details,
+          },
+        },
+        { status: 400 }
+      );
+    }
+    const { limit, offset } = pagination.data;
 
     // Validate visibility parameter
     const validVisibilities = ['public', 'friends', 'sponsors'];

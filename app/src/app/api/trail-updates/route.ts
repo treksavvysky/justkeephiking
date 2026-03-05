@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { parsePaginationParams } from '@/lib/api/pagination';
 
 /**
  * GET /api/trail-updates
@@ -14,8 +15,17 @@ export async function GET(request: NextRequest) {
   try {
     const supabase = createAdminClient();
     const { searchParams } = new URL(request.url);
-    const limit = parseInt(searchParams.get('limit') || '20');
-    const offset = parseInt(searchParams.get('offset') || '0');
+    const pagination = parsePaginationParams(searchParams);
+    if (!pagination.success) {
+      return NextResponse.json(
+        {
+          error: 'Invalid pagination parameters',
+          details: pagination.error.details,
+        },
+        { status: 400 }
+      );
+    }
+    const { limit, offset } = pagination.data;
 
     const { data, error, count } = await supabase
       .from('trail_updates')
