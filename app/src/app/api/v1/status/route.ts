@@ -8,12 +8,14 @@
  */
 
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { createAdminClient } from '@/lib/supabase/server';
 
 export async function GET() {
   const startTime = Date.now();
 
   try {
+    const supabase = createAdminClient();
+
     // Fetch current site config
     const { data: config, error } = await supabase
       .from('site_config')

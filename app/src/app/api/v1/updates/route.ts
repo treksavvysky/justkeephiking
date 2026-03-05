@@ -14,7 +14,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { createAdminClient } from '@/lib/supabase/server';
 import { validateApiKey } from '@/lib/api/auth';
 
 export async function GET(request: NextRequest) {
@@ -69,6 +69,8 @@ export async function GET(request: NextRequest) {
       // TODO: Check if API key scope allows access to requested visibility tier
       // For now, any valid API key can access friends/sponsors content
     }
+
+    const supabase = createAdminClient();
 
     // Fetch trail updates
     let query = supabase

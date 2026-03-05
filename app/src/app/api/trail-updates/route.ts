@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase, supabaseAdmin } from '@/lib/supabase';
+import { createClient, createAdminClient } from '@/lib/supabase/server';
 
 /**
  * GET /api/trail-updates
  * Returns trail updates (micro-posts)
- * Filters based on visibility and authentication (to be implemented)
+ * Public endpoint - returns only public updates
  *
  * Query params:
  * - limit: number of updates to return (default 20)
@@ -12,12 +12,11 @@ import { supabase, supabaseAdmin } from '@/lib/supabase';
  */
 export async function GET(request: NextRequest) {
   try {
+    const supabase = createAdminClient();
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get('limit') || '20');
     const offset = parseInt(searchParams.get('offset') || '0');
 
-    // TODO: Add authentication check to determine visibility level
-    // For MVP, only return public updates
     const { data, error, count } = await supabase
       .from('trail_updates')
       .select('*', { count: 'exact' })
@@ -49,7 +48,7 @@ export async function GET(request: NextRequest) {
 /**
  * POST /api/trail-updates
  * Creates a new trail update
- * Protected endpoint - requires admin auth (to be implemented)
+ * Protected endpoint - requires authenticated user
  *
  * Body:
  * - milesHiked: number (optional)
@@ -63,11 +62,18 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    // Verify the user is authenticated
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
 
-    // TODO: Add authentication check here
-    // const authHeader = request.headers.get('authorization');
-    // Verify JWT and get user ID
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Authentication required' },
+        { status: 401 }
+      );
+    }
+
+    const body = await request.json();
 
     // Validate required fields
     if (!body.locationName) {
@@ -77,8 +83,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const admin = createAdminClient();
+
     // Create the trail update
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await admin
       .from('trail_updates')
       .insert({
         miles_hiked: body.milesHiked || null,
@@ -89,7 +97,7 @@ export async function POST(request: NextRequest) {
         note: body.note || null,
         photo_url: body.photoUrl || null,
         visibility: body.visibility || 'public',
-        // author_id: userId, // TODO: Set from authenticated user
+        author_id: user.id,
       })
       .select()
       .single();

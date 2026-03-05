@@ -56,10 +56,26 @@ export async function getSiteConfig(): Promise<SiteConfig | null> {
 
 /**
  * Updates site configuration
+ * Protected - requires admin role
  */
 export async function updateSiteConfig(prevState: any, formData: FormData) {
   try {
     const supabase = await createClient();
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return { error: 'Authentication required', success: false };
+    }
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+
+    if (!profile || profile.role !== 'admin') {
+      return { error: 'Admin access required', success: false };
+    }
 
     const updates = {
       mode: formData.get('mode') as string,
@@ -135,10 +151,26 @@ export async function createTrailUpdate(prevState: any, formData: FormData) {
 
 /**
  * Quick update for trail stats (used by quick action buttons)
+ * Protected - requires admin role
  */
 export async function updateQuickStat(prevState: any, formData: FormData) {
   try {
     const supabase = await createClient();
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return { error: 'Authentication required', success: false };
+    }
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+
+    if (!profile || profile.role !== 'admin') {
+      return { error: 'Admin access required', success: false };
+    }
 
     const milesDone = parseInt(formData.get('milesDone') as string) || 0;
 

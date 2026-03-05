@@ -2,7 +2,12 @@
 const nextConfig = {
   output: 'standalone',
   images: {
-    domains: ['your-project.supabase.co'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**.supabase.co',
+      },
+    ],
   },
   async rewrites() {
     return [

@@ -11,12 +11,13 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
+import { createAdminClient } from '@/lib/supabase/server';
 
 export async function GET(request: NextRequest) {
   const startTime = Date.now();
 
   try {
+    const supabase = createAdminClient();
     const { searchParams } = new URL(request.url);
     const categoryFilter = searchParams.get('category');
 

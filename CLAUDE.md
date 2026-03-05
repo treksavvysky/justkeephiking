@@ -48,8 +48,7 @@ app/src/
 │   ├── dashboard/         # Admin dashboard components
 │   └── ui/                # Shared UI (SubscribeButton)
 ├── lib/
-│   ├── supabase.ts        # LEGACY client (simple createClient) — used by some API routes
-│   ├── supabase/          # MODERN SSR clients — use these for new code
+│   ├── supabase/          # SSR-safe Supabase clients
 │   │   ├── client.ts      # Browser client (createBrowserClient)
 │   │   ├── server.ts      # Server client (createServerClient with cookies)
 │   │   └── middleware.ts   # Session refresh middleware
@@ -64,9 +63,7 @@ app/src/
 
 ### Key Architecture Patterns
 
-**Two Supabase client systems coexist** (technical debt):
-- `lib/supabase.ts` — Legacy, simple `createClient()`. Still used in some API routes. Also exports an `adminClient` using the service role key.
-- `lib/supabase/{client,server}.ts` — Modern `@supabase/ssr` pattern with cookie-based auth. **Use these for all new code.**
+**Supabase clients** (`lib/supabase/{client,server}.ts`): Modern `@supabase/ssr` pattern with cookie-based auth. Use `createClient()` for auth-aware operations, `createAdminClient()` for service-role/public-read operations.
 
 **Server Components by default**. Only use `'use client'` for interactivity (countdown timer, forms, dashboard components). The landing page is a Server Component that fetches config at render time with a hardcoded fallback if Supabase is unavailable.
 
@@ -116,7 +113,4 @@ SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, SMTP_FROM
 
 ## Known Technical Debt
 
-- Legacy `lib/supabase.ts` should be migrated to `lib/supabase/{client,server}.ts`
-- API PUT endpoints (`/api/config`, `/api/trail-updates`) lack authentication guards
-- `next.config.js` image domain is a placeholder
 - Some dashboard nav links point to unimplemented pages (blog, galleries, gear, subscribers)

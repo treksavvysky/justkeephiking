@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { supabase, supabaseAdmin } from '@/lib/supabase';
+import { createClient, createAdminClient } from '@/lib/supabase/server';
 
 /**
  * GET /api/config
@@ -8,6 +8,7 @@ import { supabase, supabaseAdmin } from '@/lib/supabase';
  */
 export async function GET() {
   try {
+    const supabase = createAdminClient();
     const { data, error } = await supabase
       .from('site_config')
       .select('*')
@@ -34,19 +35,35 @@ export async function GET() {
 /**
  * PUT /api/config
  * Updates the site configuration
- * Protected endpoint - requires admin auth (to be implemented)
- *
- * For MVP, this is unprotected. Add auth headers when ready:
- * - Check Authorization header for JWT
- * - Verify user role is 'admin' in profiles table
+ * Protected endpoint - requires admin auth
  */
 export async function PUT(request: NextRequest) {
   try {
-    const body = await request.json();
+    // Verify the user is authenticated and is an admin
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
 
-    // TODO: Add authentication check here
-    // const authHeader = request.headers.get('authorization');
-    // Verify JWT and check user role === 'admin'
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Authentication required' },
+        { status: 401 }
+      );
+    }
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+
+    if (!profile || profile.role !== 'admin') {
+      return NextResponse.json(
+        { error: 'Admin access required' },
+        { status: 403 }
+      );
+    }
+
+    const body = await request.json();
 
     // Validate required fields
     const { mode } = body;
@@ -57,8 +74,10 @@ export async function PUT(request: NextRequest) {
       );
     }
 
+    const admin = createAdminClient();
+
     // Get the current config ID (we always update the first/only row)
-    const { data: currentConfig } = await supabaseAdmin
+    const { data: currentConfig } = await admin
       .from('site_config')
       .select('id')
       .limit(1)
@@ -72,7 +91,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Update the config
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await admin
       .from('site_config')
       .update({
         mode: body.mode,
